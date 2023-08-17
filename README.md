@@ -119,3 +119,5 @@ And it would produce this
     </nav>
 </main>
 ```
+
+Component names must be capital letters, and so must the component file names.
