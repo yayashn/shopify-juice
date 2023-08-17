@@ -14,5 +14,6 @@
       "fs-extra": "11.1.1"
     },
     "author": "yayashn",
+    "homepage": "https://github.com/yayashn/shopify-juice",
     "license": "MIT"
 }
