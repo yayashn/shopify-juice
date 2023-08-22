@@ -10,7 +10,7 @@ const { srcDir, destDir, componentsPath } = require('./paths');
  * @param {string} destDir - The destination directory for output.
  * @param {Object} componentMap - The map of components.
  */
-function setupWatcher(srcDir, destDir, componentMap) {
+function setupWatcher(srcDir, destDir, componentMap) {    
     const copyAndRenameFile = (srcPath) => {
         let destPath;
 

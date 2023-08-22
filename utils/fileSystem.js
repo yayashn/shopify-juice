@@ -21,6 +21,10 @@ function ensureBuildDirectory(destDir) {
  * @param {Object} componentMap - The map to populate.
  */
 function generateComponentMap(dir, componentMap) {
+    if (!fs.existsSync(dir)) {
+        return; // Exit if the directory doesn't exist
+    }
+
     fs.readdirSync(dir).forEach(file => {
         const fullPath = path.join(dir, file);
         const stats = fs.statSync(fullPath);

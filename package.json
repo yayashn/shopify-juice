@@ -1,6 +1,6 @@
 {
     "name": "shopify-juice",
-    "version": "0.0.1k",
+    "version": "0.0.1l",
     "description": "A tool to allow usage of pseudo-subfolders in shopify themes as well as adding JSX-like syntax sugar.",
     "main": "./index.js",
     "bin": {
