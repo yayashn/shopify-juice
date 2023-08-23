@@ -13,6 +13,9 @@ npx shopify-juice
 
 You should do all development in the `src` folder. It will create a `build` folder which you should use for any native Shopify tasks such as using the Shopify-CLI.
 
+Here's an example of what your root directory should looks like:
+<img width="154" alt="Screenshot 2023-08-23 at 10 41 49" src="https://github.com/yayashn/shopify-juice/assets/78495264/c3539372-7dd2-4256-a827-922ec1b329e2">
+
 
 ## Subfolders
 You're able to freely use subfolders in the src folder. You reference them the same way you would any component except since Shopify doesn't actually use subfolders, you use underscores as a substitute for the slash. For this reason you should avoid naming files using underscores.
