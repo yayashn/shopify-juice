@@ -2,7 +2,7 @@ const chokidar = require('chokidar');
 const { transformJSXtoLiquid } = require('./utils/transform');
 const path = require('path');
 const fs = require('fs-extra');
-const { srcDir, destDir, componentsPath } = require('./paths');
+const { srcDir, destDir, componentsPath, buildComponentsPath } = require('./paths');
 
 /**
  * Sets up a file watcher for the given source directory.
@@ -20,6 +20,7 @@ function setupWatcher(srcDir, destDir, componentMap) {
                     const relativePath = path.relative(srcDir, srcPath).replace(/\\/g, '/');
                     const splitPath = relativePath.split('/');
                     
+                    if(relativePath.startsWith('components/')) return;
                     if (relativePath.startsWith('templates/')) {
                         destPath = path.join(destDir, relativePath);
                     } else if (splitPath.length === 2) {
@@ -41,7 +42,9 @@ function setupWatcher(srcDir, destDir, componentMap) {
 
     const watcher = chokidar.watch(srcDir, {
         persistent: true,
-        ignored: ['**/.*', componentsPath],
+        ignored: [
+            '**/.*', componentsPath
+    ],
     });
 
     watcher
