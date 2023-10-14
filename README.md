@@ -1,127 +1,87 @@
 # Shopify Juice
 
-A tool to allow usage of pseudo-subfolders in shopify themes as well as adding JSX-like syntax sugar.
+Shopify Juice is a build tool designed to enhance the development experience for Shopify themes. It introduces a component system for `.liquid` files, allowing for a more modular and organized approach to theme development.
 
-## Getting Started
+## Setup
 
-Copy all the contents of your theme into a `src` folder.
-Then run:
+1. Place your Shopify theme inside a folder named `src`.
+2. In your project root, run the tool using:
 
-```console
-npx shopify-juice
+```
+npx shopify-juice@latest
 ```
 
-You should do all development in the `src` folder. It will create a `build` folder which you should use for any native Shopify tasks such as using the Shopify-CLI.
+## Pseudo-Subfolders
+You can create any level of subfolders in the `src` directory. Shopify doesn't actually allow subfolders but with this system you can replace forward slashes in your path with underscores to refer to subdirectories. For example:
+`src/assets/images/icon.png` would compile in your `build` directory to `build/assets/images_icon.png`.
 
-Here's an example of what your root directory should look like:
+## Using Components
 
-<img width="154" alt="Screenshot 2023-08-23 at 10 41 49" src="https://github.com/yayashn/shopify-juice/assets/78495264/c3539372-7dd2-4256-a827-922ec1b329e2">
+1. Create a `.liquid` file for your component inside any directory (e.g., `src/app/Example.liquid`).
+2. At the beginning of the component file, add the comment `<!--component-->`.
+3. Any content after this comment will be treated as the component's content.
 
-
-## Subfolders
-You're able to freely use subfolders in the src folder. You reference them the same way you would any component except since Shopify doesn't actually use subfolders, you use underscores as a substitute for the slash. For this reason you should avoid naming files using underscores.
-
-For example suppose you have this folder structure:
-```
--snippets
---example
-----misc
-------file.liquid
-```
-
-You could render it like so:
+`src/components/Example.liquid`
 ```liquid
-    {% render "example_misc_file" %}
+<!--component-->
+<div class="my-component">
+ Content of MyComponent goes here.
+</div>
 ```
 
-## JSX-like Components
-Since the syntax above can get quite messy, you can avoid renders altogether and use components. To do this you have to create a Components folder in the src directory. Now any .liquid files in that folder can be used a component in a familiar syntax.
-
-For example suppose you have this folder structure:
-```
--components
---Navbar
-----Navbar.liquid
-----NavbarStyles.liquid
+`src/layout/theme.liquid`
+```liquid
+<Example/>
 ```
 
-You could write something like this:
-
-```jsx
-/* src */
-
-//components/Navbar/Navbar.liquid
-<nav>Hello</nav>
-
-//layout/theme.liquid
-<main>
-    <Navbar/>
-</main>
+Output in `build/layout/theme.liquid`:
+```liquid
+<div class="my-component">
+ Content of MyComponent goes here.
+</div>
 ```
 
-And it would produce this
-
-```jsx
-/* build */
-
-//layout/theme.liquid
-<main>
-    <nav>hello</nav>
-</main>
+### Component with props example
+Use `<<propname>>` syntax to add props to your components.
+```
+<!--component-->
+<div class="my-component">
+    Hello, <<name>>!
+</div>
 ```
 
-Props are also supported:
-
-```jsx
-/* src */
-
-//components/Navbar/Navbar.liquid
-<nav>{text}</nav>
-
-//layout/theme.liquid
-<main>
-    <Navbar text={Hello}/>
-</main>
+`src/layout/theme.liquid`
+```liquid
+<Example name="adam"/>
 ```
 
-```jsx
-/* build */
-
-//layout/theme.liquid
-<main>
-    <nav>hello</nav>
-</main>
+Output in `build/layout/theme.liquid`:
+```liquid
+<div class="my-component">
+    Hello, adam!
+</div>
 ```
 
-Children are also supported if you include the `<slot/>` tag:
+### Component with children example
+Use reserved `<<children>>` to specify where children in a component go:
 
-```jsx
-/* src */
-
-//components/Navbar/Navbar.liquid
-<nav>
-    <slot/>
-</nav>
-
-//layout/theme.liquid
-<main>
-    <Navbar>
-        <span>Hey</span>
-    </Navbar>
-</main>
+```
+<!--component-->
+<div class="my-component">
+    <<children>>
+</div>
 ```
 
-And it would produce this
-
-```jsx
-/* build */
-
-//layout/theme.liquid
-<main>
-    <nav>
-        <span>Hey</span>
-    </nav>
-</main>
+`src/layout/theme.liquid`
+```liquid
+<Example>
+    Hello world
+</Example>
 ```
 
-Component names must be capital letters, and so must the component file names.
+Output in `build/layout/theme.liquid`:
+```liquid
+<div class="my-component">
+    Hello world
+</div>
+```
