@@ -12,14 +12,16 @@ async function loadAllComponents(srcDir) {
             await loadAllComponents(filePath);
         } else if (path.extname(filePath) === ".liquid") {
             const content = await fs.readFile(filePath, "utf8");
-            if (content.includes("<!--component-->")) {
+            const componentRegex = /<!--\s*component\s*-->/; // Regular expression to match both formats
+            if (componentRegex.test(content)) {
                 const componentName = path.parse(filePath).name;
-                const componentContent = content.split("<!--component-->")[1];
+                const componentContent = content.split(componentRegex)[1]; // Split using the regex
                 components[componentName] = componentContent.trim();
             }
         }
     }
 }
+
 
 function replaceComponents(content) {
     let replacedContent = content;
@@ -34,48 +36,46 @@ function replaceComponents(content) {
 }
 
 function replaceSingleLevelComponents(content) {
-    Object.keys(components).forEach(componentName => {
+    let updatedContent = content;
+    
+    for (const componentName of Object.keys(components)) {
         const tagOpen = `<${componentName}`;
         const tagClose = `</${componentName}>`;
-        const regexSelfClosing = new RegExp(`${tagOpen}([^>]*?)/>`, 'g'); // Match self-closing tags
-        const regexWithChildren = new RegExp(`${tagOpen}([^>]*?)>([\\s\\S]*?)${tagClose}`, 'g'); // Match tags with children
+        const regexSelfClosing = new RegExp(`${tagOpen}([^>]*?)/>`, 'g');
+        const regexWithChildren = new RegExp(`${tagOpen}([^>]*?)>([\\s\\S]*?)${tagClose}`, 'g');
 
-        // Handle self-closing tags (no children)
-        content = content.replace(regexSelfClosing, (match, propsString) => {
-            return replacePropsInComponent(componentName, propsString, "");
-        });
+        updatedContent = updatedContent.replace(regexSelfClosing, (match, propsString) => 
+            replacePropsInComponent(componentName, propsString, "")
+        );
 
-        // Handle tags with children
-        content = content.replace(regexWithChildren, (match, propsString, innerContent) => {
-            return replacePropsInComponent(componentName, propsString, innerContent);
-        });
-    });
+        updatedContent = updatedContent.replace(regexWithChildren, (match, propsString, innerContent) => 
+            replacePropsInComponent(componentName, propsString, innerContent)
+        );
+    }
 
-    return content;
+    return updatedContent;
 }
 
 function replacePropsInComponent(componentName, propsString, innerContent) {
     let componentContent = components[componentName];
-
+    
     // Replace props placeholders
     const props = [...propsString.matchAll(/(\w+)\s*=\s*["']([^"']+)["']/g)];
-    props.forEach(([_, key, value]) => {
+    for (const [_, key, value] of props) {
         const propPlaceholder = `<<${key}>>`;
         const regexProp = new RegExp(propPlaceholder.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'g');
         componentContent = componentContent.replace(regexProp, value);
-    });
+    }
 
-    // Replace the <<children>> placeholder with the inner content
+    // Replace children
     componentContent = componentContent.replace(/<<children>>/g, innerContent.trim());
-
-    // Cleanup any leftover placeholders
+    
+    // Cleanup leftover placeholders
     componentContent = componentContent.replace(/<<\w+>>/g, '');
 
     return componentContent;
 }
 
-
-  
 module.exports = {
     loadAllComponents,
     replaceComponents,
